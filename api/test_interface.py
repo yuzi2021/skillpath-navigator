@@ -3,13 +3,28 @@
 from datetime import date
 
 from django.contrib.staticfiles import finders
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from api.models import JobPosting, JobSkillRequirement, Skill
 
 
 class ConsumerInterfaceTests(TestCase):
+    @override_settings(
+        DEBUG=False,
+        ALLOWED_HOSTS=['skillpath.example.test'],
+        SECURE_SSL_REDIRECT=True,
+    )
+    def test_app_is_available_with_production_settings(self):
+        response = self.client.get(
+            '/app/',
+            HTTP_HOST='skillpath.example.test',
+            secure=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'app.html')
+
     def test_app_returns_200_and_database_counts(self):
         skill = Skill.objects.create(skill_name='Python', category='LANGUAGE')
         job = JobPosting.objects.create(
