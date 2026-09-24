@@ -1,0 +1,320 @@
+skill_name,category
+risk management,SOFT_SKILL
+software development,OTHER
+programming languages,OTHER
+networking,OTHER
+communication,SOFT_SKILL
+project management,SOFT_SKILL
+technical documentation,OTHER
+problem solving,SOFT_SKILL
+collaboration,SOFT_SKILL
+azure,CLOUD_DEVOPS
+sql server,DATABASE
+cicd,OTHER
+devops,CLOUD_DEVOPS
+git,TOOL
+python,LANGUAGE
+r,OTHER
+statistics,OTHER
+quality assurance,OTHER
+testing,OTHER
+deployment,OTHER
+automation,OTHER
+agile,SOFT_SKILL
+scrum,SOFT_SKILL
+bachelors degree,OTHER
+sql,DATABASE
+snowflake,OTHER
+power bi,LANGUAGE
+ssis,OTHER
+oracle,DATABASE
+linux,TOOL
+c#,LANGUAGE
+critical thinking,SOFT_SKILL
+software engineering,OTHER
+computer science,LANGUAGE
+data warehousing,OTHER
+etl,OTHER
+change management,SOFT_SKILL
+communication skills,SOFT_SKILL
+analytical skills,SOFT_SKILL
+problemsolving skills,OTHER
+microsoft azure,CLOUD_DEVOPS
+tableau,OTHER
+hadoop,OTHER
+spark,OTHER
+java,LANGUAGE
+c++,LANGUAGE
+team collaboration,SOFT_SKILL
+data collection,OTHER
+data analysis,OTHER
+leadership,SOFT_SKILL
+decision making,OTHER
+teamwork,SOFT_SKILL
+integration,OTHER
+time management,SOFT_SKILL
+data quality,OTHER
+aws,CLOUD_DEVOPS
+software architecture,OTHER
+technical writing,OTHER
+masters degree,OTHER
+written communication,SOFT_SKILL
+programming,OTHER
+scripting,OTHER
+data analytics,OTHER
+mysql,DATABASE
+numeracy,OTHER
+mathematics,OTHER
+online learning,OTHER
+program testing,OTHER
+analytical thinking,SOFT_SKILL
+attention to detail,OTHER
+selfmotivation,OTHER
+uk government funding,LANGUAGE
+junior coder,LANGUAGE
+coding,OTHER
+debugging,OTHER
+structured thinking and communication,SOFT_SKILL
+selfpaced learning,OTHER
+optimisation,OTHER
+problemsolving,OTHER
+quick learning,OTHER
+development,OTHER
+continuous integration,OTHER
+requirements gathering,OTHER
+design,OTHER
+computer engineering,LANGUAGE
+physics,OTHER
+research,OTHER
+databases,DATABASE
+agile development,SOFT_SKILL
+unit testing,OTHER
+integration testing,OTHER
+data modeling,OTHER
+mentoring,OTHER
+interpersonal skills,OTHER
+adaptability,OTHER
+learning,OTHER
+statistical analysis,OTHER
+data transformation,OTHER
+data visualization,OTHER
+presentation skills,SOFT_SKILL
+engineering,OTHER
+data management,SOFT_SKILL
+training,OTHER
+data science,OTHER
+machine learning,OTHER
+powerbi,OTHER
+data mining,OTHER
+nlp,OTHER
+cloud computing,CLOUD_DEVOPS
+data engineering,OTHER
+nosql,DATABASE
+clean code,OTHER
+efficient code,OTHER
+performance optimization,OTHER
+quick learner,OTHER
+structured thinking,OTHER
+digital industry,TOOL
+parttime study,OTHER
+bash,OTHER
+jenkins,CLOUD_DEVOPS
+gitlab,TOOL
+troubleshooting,OTHER
+multitasking,OTHER
+javascript,LANGUAGE
+html,OTHER
+css,OTHER
+react,FRAMEWORK
+jira,TOOL
+confluence,TOOL
+github,TOOL
+optimization,OTHER
+it,OTHER
+technology,OTHER
+system integration,OTHER
+data integration,OTHER
+.net,FRAMEWORK
+cloud platforms,CLOUD_DEVOPS
+thought leadership,SOFT_SKILL
+organizational skills,OTHER
+pandas,OTHER
+artificial intelligence,OTHER
+natural language processing,OTHER
+computer vision,LANGUAGE
+best practices,OTHER
+electrical engineering,OTHER
+robotics,OTHER
+documentation,OTHER
+microsoft office,OTHER
+selfpaced course,OTHER
+tutor support,LANGUAGE
+writing clean code,OTHER
+testing programs and systems,OTHER
+analytics,OTHER
+lucrative career,OTHER
+independent work,OTHER
+excel,OTHER
+digital world,TOOL
+it industry,OTHER
+technology industry,OTHER
+kubernetes,CLOUD_DEVOPS
+ansible,CLOUD_DEVOPS
+systems engineering,OTHER
+engineering leadership,SOFT_SKILL
+postgraduate engineer apprenticeship,LANGUAGE
+management in an engineering context,SOFT_SKILL
+electronics engineering,OTHER
+mechanical engineering,OTHER
+aeronautical engineering,OTHER
+ai,OTHER
+cybernetics,OTHER
+cyber security,LANGUAGE
+stem,OTHER
+technical skills,OTHER
+rotational programme,OTHER
+development programme,OTHER
+professional accreditation,OTHER
+smart working,OTHER
+volunteering days,OTHER
+holiday,OTHER
+pension scheme,OTHER
+career mentors,LANGUAGE
+healthcare cash plan,OTHER
+recognition and reward schemes,OTHER
+discount portal,OTHER
+docker,CLOUD_DEVOPS
+volunteering,OTHER
+angular,FRAMEWORK
+software design,OTHER
+software testing,OTHER
+version control,OTHER
+code review,OTHER
+augmented reality,OTHER
+online training,OTHER
+deep learning,OTHER
+kanban,SOFT_SKILL
+windows,OTHER
+microsoft office suite,OTHER
+flexibility,OTHER
+cc++,LANGUAGE
+strong communication skills,SOFT_SKILL
+typescript,LANGUAGE
+civil engineering,OTHER
+visio,OTHER
+fulltime employment,OTHER
+product development,OTHER
+powerpoint,OTHER
+organization skills,OTHER
+reporting,OTHER
+maintenance,OTHER
+xml,OTHER
+full stack development,OTHER
+microservices,OTHER
+structured communication,SOFT_SKILL
+report writing,OTHER
+apis,OTHER
+data structures,OTHER
+algorithms,LANGUAGE
+go,LANGUAGE
+objectoriented programming,OTHER
+data processing,OTHER
+tsql,DATABASE
+matlab,LANGUAGE
+spring boot,FRAMEWORK
+json,OTHER
+consulting experience,OTHER
+gcp,CLOUD_DEVOPS
+big data,OTHER
+sharepoint,OTHER
+scala,LANGUAGE
+kafka,OTHER
+postgresql,DATABASE
+mongodb,LANGUAGE
+data pipelines,OTHER
+specifications,OTHER
+analytical,SOFT_SKILL
+digital career,TOOL
+software development life cycle,OTHER
+environmental engineering,OTHER
+system testing,OTHER
+c,OTHER
+web development,OTHER
+perl,LANGUAGE
+curiosity,OTHER
+nginx,OTHER
+django,LANGUAGE
+flask,FRAMEWORK
+powershell,OTHER
+rest apis,OTHER
+team player,OTHER
+azure data factory,CLOUD_DEVOPS
+performance tuning,OTHER
+data governance,LANGUAGE
+engineering lifecycle,OTHER
+dns,OTHER
+configuration management,SOFT_SKILL
+virtualization,OTHER
+fulltime role,OTHER
+us citizenship,OTHER
+government funding,LANGUAGE
+level 2 understanding coding course,OTHER
+eit certification,OTHER
+embedded systems,OTHER
+vmware,OTHER
+tssci clearance,OTHER
+organization,OTHER
+clean coding,OTHER
+initiative,OTHER
+continuous learning,OTHER
+5g,OTHER
+software development lifecycle,OTHER
+iot,OTHER
+digital skills,TOOL
+data extraction,OTHER
+pyspark,OTHER
+teamwork skills,SOFT_SKILL
+quantum computing,OTHER
+business analytics,OTHER
+modeling,OTHER
+paid holidays,OTHER
+education assistance,OTHER
+reliability,OTHER
+computing,OTHER
+computer and data science,LANGUAGE
+engineering solutions,OTHER
+bachelors degree in stem,OTHER
+rotational program,OTHER
+development program,OTHER
+healthcare,OTHER
+stem subject,OTHER
+online course,OTHER
+internship,OTHER
+data integrity,OTHER
+mba,OTHER
+beng,OTHER
+meng,OTHER
+msc,OTHER
+bsc,OTHER
+dental coverage,OTHER
+vision coverage,OTHER
+internship stipend,OTHER
+financial analysis,OTHER
+operational and organizational assessments,OTHER
+condition assessments,OTHER
+vulnerability and mitigation assessments,OTHER
+planning and development,OTHER
+work ethic,OTHER
+knowledge of engineering concepts,OTHER
+building information modeling bim,OTHER
+utility experience,OTHER
+change management skills,SOFT_SKILL
+competitive salary,OTHER
+performancerelated pay,OTHER
+competitive pension scheme,OTHER
+discount portal  cashback,OTHER
+cranfield university,OTHER
+cashback,OTHER
+willingness to work hard,OTHER
+understanding coding,OTHER
+career mentorship,LANGUAGE

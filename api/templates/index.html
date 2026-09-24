@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillPath Navigator API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .app-link {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 6px;
+            background: #173a45;
+            color: #fff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .app-link:hover, .app-link:focus {
+            background: #245b68;
+            color: #fff;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .info-box strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .endpoint-list {
+            list-style: none;
+            padding: 0;
+        }
+        .endpoint-list li {
+            background-color: #f8f9fa;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+        .endpoint-list a {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .endpoint-list a:hover {
+            text-decoration: underline;
+            color: #3498db;
+        }
+        .method-get {
+            background-color: #27ae60;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .method-post {
+            background-color: #e67e22;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .method-delete {
+            background-color: #dc3545;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .description {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .admin-credentials {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .setup-steps {
+            background-color: #d4edda;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .setup-steps ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .setup-steps code {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #7f8c8d;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 10px;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            display: block;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SkillPath Navigator - RESTful Job Market API</h1>
+        
+        <p style="font-size: 18px; color: #555;">
+            A RESTful API analyzing 464 entry-level software engineering job postings 
+            to help bootcamp graduates understand skill demands and career entry requirements.
+        </p>
+        <p><a class="app-link" href="/app/">Open the SkillPath app →</a></p>
+
+        <!-- Dataset Statistics -->
+        <div class="stats">
+            <div class="stat-box">
+                <span class="stat-number">464</span>
+                <span class="stat-label">Entry-Level Jobs</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">319</span>
+                <span class="stat-label">Unique Skills</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">5,845</span>
+                <span class="stat-label">Job-Skill Links</span>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <h2> System Information</h2>
+        <div class="info-grid">
+            <div class="info-box">
+                <strong>Python Version</strong>
+                3.12 (Docker image)
+            </div>
+            <div class="info-box">
+                <strong>Django Version</strong>
+                5.2.1 LTS
+            </div>
+            <div class="info-box">
+                <strong>DRF Version</strong>
+                3.15.2
+            </div>
+            <div class="info-box">
+                <strong>Database</strong>
+                SQLite3
+            </div>
+            <div class="info-box">
+                <strong>Testing Framework</strong>
+                Django TestCase + FactoryBoy
+            </div>
+            <div class="info-box">
+                <strong>Documentation</strong>
+                drf-yasg (Swagger/OpenAPI)
+            </div>
+        </div>
+
+        <!-- Admin Access -->
+        <div class="admin-credentials">
+            <h3 style="margin-top: 0;"> Admin Panel Access</h3>
+            <p><strong>URL:</strong> <a href="/admin/">/admin/</a></p>
+            <p style="font-size: 14px; color: #856404; margin-top: 10px;">
+                <em>Create a local admin account with <code>python manage.py createsuperuser</code>.</em>
+            </p>
+        </div>
+
+        <!-- API Endpoints -->
+        <h2> RESTful API Endpoints</h2>
+        <ul class="endpoint-list">
+            <li>
+                <span class="method-get">GET</span>
+                <a href="/api/skills/most-demanded/">/api/skills/most-demanded/</a>
+                <p class="description">
+                    Returns the top 20 most demanded skills across all entry-level job postings, 
+                    ranked by number of jobs requiring each skill. Helps bootcamp graduates 
+                    prioritize what to learn first.
+                </p>
+            </li>
+            
+            <li>
+                <span class="method-get">GET</span>
+                <a href="/api/skills/for-role/?role=backend">/api/skills/for-role/</a>
+                <p class="description">
+                    Retrieves skills commonly required for a specific entry-level role type 
+                    (e.g., backend, frontend, full-stack, data analyst). Shows what skills 
+                    are most important for breaking into each role.
+                    <br><strong>Query params:</strong> <code>role</code> (required)
+                </p>
+            </li>
+            
+            <li>
+                <span class="method-get">GET</span>
+                <a href="/api/jobs/by-skills/?skills=Python,Django">/api/jobs/by-skills/</a>
+                <p class="description">
+                    Finds entry-level jobs matching user's current skills. Returns jobs with 
+                    match scores showing what percentage of required skills the user already has. 
+                    Helps identify which positions you're ready to apply for.
+                    <br><strong>Query params:</strong> <code>skills</code> 
+                    (comma-separated list)
+                </p>
+            </li>
+            
+            <li>
+                <span class="method-get">GET</span>
+                <a href="/api/skills/combinations/?skill=Python">/api/skills/combinations/</a>
+                <p class="description">
+                    Analyzes which skills are commonly required together in entry-level jobs. 
+                    For a given skill (e.g., Python), shows which other skills employers typically 
+                    look for in the same position. Helps plan complementary skill development.
+                    <br><strong>Query params:</strong> <code>skill</code> (required)
+                </p>
+            </li>
+            
+            <li>
+                <span class="method-get">GET</span>
+                <span class="method-post">POST</span>
+                <a href="/api/bookmarks/">/api/bookmarks/</a>
+                <p class="description">
+                    <strong>GET:</strong> List all bookmarked jobs with application tracking status and statistics.
+                    <br><strong>POST:</strong> Create new bookmark for a job of interest. Receives personalized 
+                    similar job recommendations based on skill overlap.
+                    <br><strong>POST Body:</strong> 
+                    <code>{"job_link": "https://...", "notes": "...", "status": "interested"}</code>
+                </p>
+            </li>
+            
+            <li>
+                    <span class="method-get">GET</span>
+                    <span class="method-post">PUT</span>
+                    <span class="method-post">PATCH</span>
+                    <span class="method-post">DELETE</span>
+                    <span>/api/bookmarks/{id}/</span>
+                    <p class="description">
+                        Complete CRUD operations for individual bookmarks:
+                        <br><strong>GET:</strong> Retrieve full bookmark details with job information
+                        <br><strong>PUT/PATCH:</strong> Update bookmark notes or status (interested → applied → interviewing)
+                        <br><strong>DELETE:</strong> Remove bookmark from saved jobs
+                        <br><em>Demonstrates CREATE, UPDATE, DELETE operations required by assignment.</em>
+                    </p>
+                </li>
+        </ul>
+
+        <!-- Test Link for Bookmarks -->
+        <div class="admin-credentials" style="background-color: #d1ecf1; border-color: #bee5eb;">
+            <h3 style="margin-top: 0; color: #0c5460;">📌 Testing Bookmark Endpoints</h3>
+            <p><strong>Sample Job Link from Dataset:</strong></p>
+            <p style="background-color: white; padding: 10px; border-radius: 3px; font-family: monospace; word-break: break-all;">
+                https://uk.linkedin.com/jobs/view/junior-coder-at-e-careers-3793314768
+            </p>
+            <p><strong>Example POST Request Body (use in Swagger):</strong></p>
+            <pre style="background-color: #f8f9fa; padding: 15px; border-radius: 3px; overflow-x: auto; border: 1px solid #dee2e6; font-size: 13px;">
+        {
+        "job_link": "https://uk.linkedin.com/jobs/view/junior-coder-at-e-careers-3793314768",
+        "notes": "Looks like a good entry-level position",
+        "status": "interested"
+        }</pre>
+            <p style="font-size: 14px; color: #0c5460; margin-top: 10px;">
+                <strong>Valid status values:</strong> <code>interested</code>, <code>applied</code>, <code>interviewing</code>, <code>offered</code>, <code>rejected</code>
+            </p>
+            <p style="font-size: 14px; color: #0c5460;">
+                <em>💡 Tip: After creating a bookmark via POST, note the returned ID to test PATCH and DELETE operations at /api/bookmarks/{id}/</em>
+            </p>
+        </div> 
+
+        <!-- API Documentation -->
+        <h2> Interactive API Documentation</h2>
+        <div class="info-grid">
+            <div class="info-box">
+                <strong>Swagger UI</strong>
+                <a href="/swagger/">/swagger/</a>
+                <p class="description">Interactive API explorer with request/response examples</p>
+            </div>
+            <div class="info-box">
+                <strong>ReDoc</strong>
+                <a href="/redoc/">/redoc/</a>
+                <p class="description">Clean, responsive API documentation</p>
+            </div>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="setup-steps">
+            <h3 style="margin-top: 0;"> Setup Instructions</h3>
+            <p>Follow these steps to deploy the application:</p>
+            <ol>
+                <li>Create virtual environment: <code>python -m venv venv</code></li>
+                <li>Activate venv: 
+                    <code>venv\Scripts\activate</code> (Windows) or 
+                    <code>source venv/bin/activate</code> (Mac/Linux)
+                </li>
+                <li>Install dependencies: <code>pip install -r requirements.txt</code></li>
+                <li>Run migrations: <code>python manage.py migrate</code></li>
+                <li>Load data: <code>python manage.py load_data</code></li>
+                <li>Create superuser (optional): <code>python manage.py createsuperuser</code></li>
+                <li>Run server: <code>python manage.py runserver</code></li>
+                <li>Run tests: <code>python manage.py test</code></li>
+            </ol>
+            <p style="margin-top: 15px; font-size: 14px;">
+                <strong>Note:</strong> Data loading may take 1-2 minutes. 
+                The <code>load_data</code> command uses bulk operations for optimal performance.
+            </p>
+        </div>
+
+        <!-- Additional Information -->
+        <h2> Additional Information</h2>
+        <div class="info-grid">
+            <div class="info-box">
+                <strong>Dataset Source</strong>
+                Checked-in January 2024 CSV snapshot
+            </div>
+            <div class="info-box">
+                <strong>Data Normalization</strong>
+                Job, skill, and relationship tables
+            </div>
+            <div class="info-box">
+                <strong>Target Audience</strong>
+                Bootcamp Graduates
+            </div>
+            <div class="info-box">
+                <strong>Total Records</strong>
+                6,628 (under 10K requirement)
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                <strong>SkillPath Navigator API</strong> - 
+                Advanced Web Development (CM3035) Midterm Project
+            </p>
+            <p>University of London - BSc Computer Science</p>
+            <p style="font-size: 12px; margin-top: 10px;">
+                Built with Django 5.2.1 LTS & Django REST Framework 3.15.2
+            </p>
+        </div>
+    </div>
+</body>
+</html>
