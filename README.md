@@ -22,7 +22,7 @@ cannot be reproduced from source here. There is **no salary column**.
 ```text
 data/*.csv
   -> api/etl.py: extract -> validate -> transform -> load
-  -> PostgreSQL (or optional local SQLite)
+  -> SQLite locally, or PostgreSQL when configured
   -> Django ORM in api/api.py -> DRF serializers -> JSON API
 ```
 
@@ -46,17 +46,18 @@ Django admin is `/admin/`.
 
 | Route | Use |
 | --- | --- |
-| `/app/` | Consumer interface for exploring skills, matching jobs, and tracking bookmarks |
+| `/app/` | Interactive demonstration of the REST API using the historical snapshot |
 | `/api/` | Existing REST API used by the consumer interface |
 | `/swagger/` | Interactive API documentation |
 | `/admin/` | Django administration |
 
 The original project-information page remains at `/`, and ReDoc remains at
-`/redoc/`. The `/app/` page uses a Django template, local CSS, and vanilla
-JavaScript `fetch()` calls to the existing API. Its three overview counts are
-read from the database. It adds no frontend build system or new analytical
-API. Bookmarks are still shared because the original API has no user ownership;
-avoid storing private notes.
+`/redoc/`. The `/app/` page is an interactive demonstration of the existing
+REST API, not a live job-search service. It uses a Django template, local CSS,
+and vanilla JavaScript `fetch()` calls to the API. Its three overview counts are
+read from the database. It adds no frontend build system or new analytical API.
+Bookmarks are shared because the original API has no user ownership; avoid
+storing private notes.
 
 ## Ubuntu setup without Docker
 
@@ -66,9 +67,23 @@ Use Python 3.12 (the local test version). Ubuntu may need `python3-venv`:
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py load_data
+python manage.py runserver
 ```
 
-### PostgreSQL (recommended development path)
+No `.env`, PostgreSQL server, or Docker installation is required. With no
+database environment variables, Django uses the ignored local `db.sqlite3`.
+Open <http://127.0.0.1:8000/app/> for the interactive API demonstration; `/`
+remains the project-information page.
+
+`load_data` inserts the snapshot; running it again skips existing keys and
+reports them. Use `--data-dir PATH` to test another three-file snapshot.
+`--clear` deletes imported jobs, skills, links, **and bookmarks** before
+reloading, inside one transaction. Validation occurs before this deletion.
+Back up any data you want to retain before using it.
+
+### Optional local PostgreSQL
 
 Install and start a local PostgreSQL server, then create a database and role.
 For example, after `sudo apt install postgresql`, run `sudo -u postgres psql`
@@ -95,24 +110,15 @@ python manage.py load_data
 python manage.py runserver
 ```
 
-Open <http://127.0.0.1:8000/app/> for the consumer interface; `/` remains the
-project-information page. `load_data` inserts the snapshot; running it
-again skips existing keys and reports them. Use `--data-dir PATH` to test
-another three-file snapshot. `--clear` deletes imported jobs, skills, links,
-**and bookmarks** before reloading, inside one transaction. Validation occurs
-before this deletion. Back up any data you want to retain before using it.
-
-### SQLite convenience fallback
-
-Without `DB_ENGINE`, Django uses the existing local `db.sqlite3`. To make the
-choice explicit in a shell that has loaded `.env`, set `DB_ENGINE=sqlite`.
-`SQLITE_PATH` can override the file path. Run `migrate`, `load_data`, and
-`runserver` as above. This path keeps the original coursework setup usable.
+`DATABASE_URL` takes precedence when present. Otherwise, setting
+`DB_ENGINE=postgresql` uses the individual `DB_*` variables. With neither set,
+SQLite remains the default. `SQLITE_PATH` can override the local database path.
 
 ## Docker Compose
 
-Docker Compose runs the Django development server and PostgreSQL 16. Create a
-local `.env` first; the web container overrides `DB_HOST` to the `db` service.
+Docker Compose is optional and runs the Django development server with
+PostgreSQL 16. Create a local `.env` first; the web container overrides
+`DB_ENGINE` and `DB_HOST` to use the `db` service.
 The database has a persistent named volume, and the web service waits for the
 PostgreSQL health check before running migrations and starting.
 
@@ -151,12 +157,12 @@ use Gunicorn and WhiteNoise, with collected static assets in `staticfiles/`.
 
 ## Public demo deployment (private source)
 
-[`render.yaml`](render.yaml) defines a Render Blueprint with a public Django
-web service and a PostgreSQL database. Render can read a private GitHub
-repository after you authorize its GitHub App; the repository does not need to
-be made public. The Blueprint generates `DJANGO_SECRET_KEY`, disables debug,
-wires `DATABASE_URL` to PostgreSQL, collects static assets, runs migrations,
-and idempotently loads the checked-in dataset.
+[`render.yaml`](render.yaml) defines a single free Render web service backed by
+SQLite; it does not provision Render Postgres. Render can read a private GitHub
+repository after you authorize its GitHub App, so the repository does not need
+to be public. The Blueprint generates `DJANGO_SECRET_KEY`, disables debug,
+collects static assets, runs migrations, and loads the checked-in dataset into
+SQLite during each build.
 
 To deploy after pushing the repository:
 
@@ -168,18 +174,19 @@ To deploy after pushing the repository:
    `https://<service>.onrender.com/app/` URL and smoke-test skill search and job
    matching.
 
-No secret needs to be copied into the repository. `DJANGO_SECRET_KEY` and
-`DATABASE_URL` are created by the Blueprint, while Render supplies its external
-hostname for `ALLOWED_HOSTS`. For another host, set `DJANGO_ALLOWED_HOSTS` to a
-comma-separated list of exact hostnames and provide `DATABASE_URL` plus
-`DJANGO_SECRET_KEY` in that platform's secret settings.
+No secret needs to be copied into the repository. `DJANGO_SECRET_KEY` is
+generated by the Blueprint, and Render supplies its external hostname for
+`ALLOWED_HOSTS`. For another host, set `DJANGO_ALLOWED_HOSTS` to a comma-separated
+list of exact hostnames and provide `DJANGO_SECRET_KEY` in that platform's
+secret settings. Set a PostgreSQL `DATABASE_URL` only if persistent hosted data
+is wanted later.
 
-The Blueprint deliberately selects free plans so applying it cannot silently
-choose paid compute. Free web services sleep after inactivity, and free Render
-PostgreSQL databases expire after 30 days. For a durable recruiter-facing URL,
-change the database to a paid plan in the Render review screen before applying,
-or upgrade it before the 30-day expiry. Do not use SQLite on Render for durable
-bookmarks because its service filesystem is ephemeral.
+The Blueprint explicitly selects the free web-service plan and creates no
+managed database. Its filesystem is ephemeral: the checked-in January 2024 job
+and skill snapshot is rebuilt from CSV on deploy, while anonymous bookmarks can
+reset after a restart, spin-down recovery, or redeploy. This is intentional for
+a low-maintenance portfolio demonstration and must not be treated as persistent
+user storage.
 
 ## ETL and data quality
 
@@ -234,9 +241,11 @@ python manage.py test
 The original 29 coursework tests remain in `api/tests.py`. Focused ETL tests
 are in `api/test_etl.py`. GitHub Actions installs the pinned dependencies,
 starts a PostgreSQL 16 service, checks Django and migration consistency,
-migrates the database, validates the checked-in CSVs without loading them,
-and runs the full test suite against PostgreSQL. A local SQLite test run is
-also supported by setting `DB_ENGINE=sqlite`.
+opens the connection and asserts that Django reports the PostgreSQL backend,
+migrates the database, validates the checked-in CSVs without loading them, and
+runs the full test suite against PostgreSQL. If PostgreSQL is unavailable, the
+connection assertion fails instead of falling back to SQLite. Ordinary local
+checks use SQLite without extra configuration.
 
 ## Scope and limitations
 
@@ -244,8 +253,9 @@ The coursework API and bookmark behavior are retained. The new pipeline and
 infrastructure demonstrate local data engineering practices; the snapshot is
 historical and does not update automatically. API permissions still allow
 anonymous access, and bookmarks are shared rather than user-owned. The Render
-configuration serves static assets and relies on Render for managed TLS. Review
-the shared-write behavior before promoting the demo beyond portfolio use. With
-default local development settings, `python manage.py check --deploy` still
-warns because debug mode and the development-only secret are intentional local
-defaults; the Blueprint overrides both in production.
+configuration serves static assets, relies on Render for managed TLS, and uses
+ephemeral SQLite. Review the shared-write and non-persistence behavior before
+promoting the demo beyond portfolio use. With default local development
+settings, `python manage.py check --deploy` warns because debug mode and the
+development-only secret are intentional local defaults; the Blueprint
+overrides both in production.
