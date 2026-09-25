@@ -1,4 +1,4 @@
-    """Readiness endpoint for the database-backed public application."""
+"""Readiness endpoint for the database-backed public application."""
 from django.db import connection
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
