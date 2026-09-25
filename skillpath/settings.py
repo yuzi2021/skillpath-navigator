@@ -88,11 +88,15 @@ WSGI_APPLICATION = 'skillpath.wsgi.application'
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite').lower()
+if os.getenv('RENDER') and not DATABASE_URL:
+    raise ImproperlyConfigured(
+        'Set DATABASE_URL to persistent PostgreSQL before deploying on Render.'
+    )
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
-            conn_max_age=600,
+            conn_max_age=int(os.getenv('DB_CONN_MAX_AGE', '60')),
             conn_health_checks=True,
         )
     }
@@ -116,6 +120,22 @@ elif DB_ENGINE == 'sqlite':
     }
 else:
     raise ImproperlyConfigured('DB_ENGINE must be postgresql or sqlite.')
+
+if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+    database_host = DATABASES['default'].get('HOST', '')
+    pooled_connection = '-pooler.' in database_host
+    DATABASES['default']['DISABLE_SERVER_SIDE_CURSORS'] = (
+        os.getenv(
+            'DB_DISABLE_SERVER_SIDE_CURSORS',
+            'true' if pooled_connection else 'false',
+        ).lower() in {'1', 'true', 'yes', 'on'}
+    )
+    if database_host.endswith('.neon.tech'):
+        sslmode = DATABASES['default'].get('OPTIONS', {}).get('sslmode')
+        if sslmode not in {'require', 'verify-ca', 'verify-full'}:
+            raise ImproperlyConfigured(
+                'Neon DATABASE_URL must include sslmode=require (or stricter).'
+            )
 
 
 # Password validation
@@ -177,6 +197,14 @@ SECURE_HSTS_SECONDS = int(os.getenv(
     'DJANGO_SECURE_HSTS_SECONDS',
     '0' if DEBUG else '3600',
 ))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv(
+    'DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS',
+    'false' if DEBUG else 'true',
+).lower() in {'1', 'true', 'yes', 'on'}
+SECURE_HSTS_PRELOAD = os.getenv(
+    'DJANGO_SECURE_HSTS_PRELOAD',
+    'false' if DEBUG else 'true',
+).lower() in {'1', 'true', 'yes', 'on'}
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 

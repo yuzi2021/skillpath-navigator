@@ -4,13 +4,15 @@ services:
     runtime: python
     plan: free
     buildCommand: ./build.sh
-    startCommand: gunicorn skillpath.wsgi:application --bind 0.0.0.0:$PORT
-    healthCheckPath: /app/
+    startCommand: ./start.sh
+    healthCheckPath: /healthz/
     autoDeployTrigger: checksPass
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
         value: "false"
-      - key: DB_ENGINE
-        value: sqlite
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_CONN_MAX_AGE
+        value: "60"

@@ -10,6 +10,12 @@ from api.models import JobPosting, JobSkillRequirement, Skill
 
 
 class ConsumerInterfaceTests(TestCase):
+    def test_healthcheck_confirms_database_readiness(self):
+        response = self.client.get(reverse('healthcheck'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'ok', 'database': 'ok'})
+
     @override_settings(
         DEBUG=False,
         ALLOWED_HOSTS=['skillpath.example.test'],
