@@ -114,13 +114,29 @@ python manage.py runserver
 `DB_ENGINE=postgresql` uses the individual `DB_*` variables. With neither set,
 SQLite remains the default. `SQLITE_PATH` can override the local database path.
 
+## Infrastructure audit
+
+The deployed core is synchronous Django backed by PostgreSQL. Search, role and
+skill analysis, bookmarks, API operations, Swagger/ReDoc, and the consumer UI
+require Django and the database only. If a non-critical documentation asset is
+unavailable, the data workflows continue to operate.
+
+This repository does **not** currently contain Celery tasks, a Celery app,
+Channels consumers, WebSocket routes, or Redis-backed functionality, and no
+commit in its Git history contains those components. Nothing was removed for
+deployment, but it would be inaccurate to claim that Redis/Celery/Channels run
+locally or publicly. If those features exist in another SkillPath source tree,
+they must be merged before a worker/Redis/Channels architecture can be deployed
+honestly.
+
 ## Docker Compose
 
-Docker Compose is optional and runs the Django development server with
-PostgreSQL 16. Create a local `.env` first; the web container overrides
+Docker Compose runs the Django development server with PostgreSQL 16. Create a
+local `.env` first; the web container overrides
 `DB_ENGINE` and `DB_HOST` to use the `db` service.
 The database has a persistent named volume, and the web service waits for the
-PostgreSQL health check before running migrations and starting.
+PostgreSQL health check before running migrations, idempotently loading the
+checked-in demonstration snapshot, and starting.
 
 ```bash
 cp .env.example .env
@@ -141,6 +157,8 @@ does not include the local SQLite database or `.env` file.
 | Variable | Meaning | Default when unset |
 | --- | --- | --- |
 | `DATABASE_URL` | Hosted database connection URL; takes precedence over the variables below | unset |
+| `DB_CONN_MAX_AGE` | Persistent database connection lifetime in seconds | `60` for URL configuration |
+| `DB_DISABLE_SERVER_SIDE_CURSORS` | Disable cursors incompatible with transaction pooling | auto-enabled for `-pooler` hosts |
 | `DB_ENGINE` | `postgresql` or `sqlite` | `sqlite` |
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL database credentials | `skillpath`, `skillpath`, empty password |
 | `DB_HOST`, `DB_PORT` | PostgreSQL address | `localhost`, `5432` |
@@ -150,19 +168,25 @@ does not include the local SQLite database or `.env` file.
 | `DJANGO_ALLOWED_HOSTS` | Comma-separated host names | `localhost,127.0.0.1` |
 | `DJANGO_SECURE_SSL_REDIRECT` | Redirect HTTP to HTTPS | `false` locally, `true` when debug is off |
 | `DJANGO_SECURE_HSTS_SECONDS` | HSTS duration in seconds | `0` locally, `3600` when debug is off |
+| `DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS`, `DJANGO_SECURE_HSTS_PRELOAD` | Production HSTS directives | off locally, on when debug is off |
 
 The settings reject an unset secret key when debug mode is disabled. The
 Compose setup and `runserver` are development tooling. Production deployments
 use Gunicorn and WhiteNoise, with collected static assets in `staticfiles/`.
 
-## Public demo deployment (private source)
+## Public demo deployment: Render + Neon
 
-[`render.yaml`](render.yaml) defines a single free Render web service backed by
-SQLite; it does not provision Render Postgres. Render can read a private GitHub
-repository after you authorize its GitHub App, so the repository does not need
-to be public. The Blueprint generates `DJANGO_SECRET_KEY`, disables debug,
-collects static assets, runs migrations, and loads the checked-in dataset into
-SQLite during each build.
+[`render.yaml`](render.yaml) defines one free Render web service and requires an
+external `DATABASE_URL`. It does not create Render PostgreSQL. The public demo
+must use persistent Neon PostgreSQL; production startup fails fast on Render if
+`DATABASE_URL` is absent, preventing an accidental fallback to ephemeral
+SQLite.
+
+Create a Neon project near the Render service, select the pooled connection URL,
+and verify that its hostname contains `-pooler` and its query string contains
+`sslmode=require`. Store that complete URL only in Render's secret environment
+settings. Never commit it. Pooled Neon hosts automatically disable Django's
+server-side cursors for transaction-pooler compatibility.
 
 To deploy after pushing the repository:
 
@@ -170,23 +194,38 @@ To deploy after pushing the repository:
    private repository if desired.
 2. In **Blueprints**, choose **New Blueprint Instance**, select this repository,
    and apply its `render.yaml` from the default branch.
-3. Wait for the database and web-service deploy to finish, then open the public
+3. Supply the secret `DATABASE_URL` when prompted.
+4. Wait for `/healthz/` to pass, then open the public
    `https://<service>.onrender.com/app/` URL and smoke-test skill search and job
    matching.
 
-No secret needs to be copied into the repository. `DJANGO_SECRET_KEY` is
-generated by the Blueprint, and Render supplies its external hostname for
-`ALLOWED_HOSTS`. For another host, set `DJANGO_ALLOWED_HOSTS` to a comma-separated
-list of exact hostnames and provide `DJANGO_SECRET_KEY` in that platform's
-secret settings. Set a PostgreSQL `DATABASE_URL` only if persistent hosted data
-is wanted later.
+`build.sh` installs dependencies and collects static files without changing the
+database. Because Render's free web tier does not provide a separate pre-deploy
+command, `start.sh` applies idempotent migrations and idempotently loads the
+checked-in January 2024 snapshot before starting Gunicorn. Existing rows and
+bookmarks remain in Neon across restarts and redeploys; the application does not
+depend on local filesystem persistence.
 
-The Blueprint explicitly selects the free web-service plan and creates no
-managed database. Its filesystem is ephemeral: the checked-in January 2024 job
-and skill snapshot is rebuilt from CSV on deploy, while anonymous bookmarks can
-reset after a restart, spin-down recovery, or redeploy. This is intentional for
-a low-maintenance portfolio demonstration and must not be treated as persistent
-user storage.
+`/healthz/` checks the critical database connection with `SELECT 1`. Django
+enables connection health checks and bounded persistent connections so stale
+connections can be replaced after Neon resumes. The configuration remains
+portable to any PostgreSQL provider through `DATABASE_URL`.
+
+Render free web services may sleep when inactive, so the first request can have
+a cold-start delay. Do not use artificial keep-alive traffic to bypass the
+provider's sleep policy.
+
+Run the automated suite against the Docker PostgreSQL service before release:
+
+```bash
+docker compose run --rm web python manage.py test -v 2
+```
+
+This exercises migrations, the deterministic import, API operations, model
+relationships and constraints, the consumer interface, and the database-backed
+health endpoint against PostgreSQL. Authentication is not part of the public
+API design: endpoints use `AllowAny`, and bookmarks are intentionally shared.
+Do not claim authenticated or user-owned operations unless that design changes.
 
 ## ETL and data quality
 
@@ -253,9 +292,9 @@ The coursework API and bookmark behavior are retained. The new pipeline and
 infrastructure demonstrate local data engineering practices; the snapshot is
 historical and does not update automatically. API permissions still allow
 anonymous access, and bookmarks are shared rather than user-owned. The Render
-configuration serves static assets, relies on Render for managed TLS, and uses
-ephemeral SQLite. Review the shared-write and non-persistence behavior before
-promoting the demo beyond portfolio use. With default local development
-settings, `python manage.py check --deploy` warns because debug mode and the
+configuration serves static assets, relies on Render for managed TLS, and
+requires persistent PostgreSQL through `DATABASE_URL`. Review the shared-write
+behavior before promoting the demo beyond portfolio use. With default local
+development settings, `python manage.py check --deploy` warns because debug mode and the
 development-only secret are intentional local defaults; the Blueprint
 overrides both in production.
